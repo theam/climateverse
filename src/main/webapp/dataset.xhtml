@@ -635,6 +635,10 @@
                                     </div>
                                     <!-- END: DEACCESSION REASON -->
 
+                                    <p:commandLink onclick="PF('fullsizeImageDialog').show()">
+                                        <img id="dataset-image" src="assets/dataset_0.png" class="col-xs-12 col-sm-12 col-md-8 col-lg-9 margin-bottom" />
+                                    </p:commandLink>
+
                                     <!-- BEGIN: DATASET SUMMARY -->
                                     <div id="dataset-summary-metadata" class="col-xs-12 col-sm-12 col-md-8 col-lg-9 metadata-container padding-none margin-bottom"
                                          jsf:rendered="#{!widgetWrapper.widgetView and !DatasetPage.workingVersion.deaccessioned and 
@@ -1022,6 +1026,9 @@
                         <ui:param name="updateElements" value=":datasetForm:embargoInputs"/>
                         <ui:param name="updateRetentionElements" value=":datasetForm:retentionInputs"/>
                     </ui:include>
+                    <p:dialog id="fullsizeImageDialog" widgetVar="fullsizeImageDialog" modal="true">
+                        <img class="col-xs-12" src="assets/dataset_0.png" />
+                    </p:dialog>
                     <p:dialog id="shareDialog" header="#{bundle['dataset.share.datasetShare']}" widgetVar="shareDialog" modal="true" rendered="#{!DatasetPage.workingVersion.deaccessioned}">
                         <p class="help-block">#{bundle['dataset.share.datasetShare.tip']}</p>
                         <div id="sharrre-widget" data-url="#{DatasetPage.dataverseSiteUrl}/dataset.xhtml?persistentId=#{dataset.globalId}" data-text="#{bundle['dataset.share.datasetShare.shareText']}"></div>
