@@ -12,9 +12,9 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
-import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
@@ -61,17 +61,24 @@ public class DatasetFields extends AbstractApiBean {
 
         ListObjectsV2Request listObjectsReqManual = ListObjectsV2Request.builder()
                 .bucket(BUCKET_NAME)
-                .prefix("dataset_0") // Filter by image name prefix
                 .build();
 
         ListObjectsV2Response listObjResponse = s3.listObjectsV2(listObjectsReqManual);
 
         List<String> imageUrls = listObjResponse.contents().stream()
-                .map(S3Object::key)
-                .map(key -> {
+                .filter(s3Object -> {
                     GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                             .bucket(BUCKET_NAME)
-                            .key(key)
+                            .key(s3Object.key())
+                            .build();
+
+                    GetObjectResponse getObjectResponse = s3.getObject(getObjectRequest).response();
+                    return "included".equals(getObjectResponse.metadata().get("freq"));
+                })
+                .map(s3Object -> {
+                    GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                            .bucket(BUCKET_NAME)
+                            .key(s3Object.key())
                             .build();
 
                     GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()

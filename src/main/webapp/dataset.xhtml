@@ -8,7 +8,9 @@
       xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
       xmlns:jsf="http://xmlns.jcp.org/jsf"
       xmlns:o="http://omnifaces.org/ui"
->
+      xmlns:pt="http://java.sun.com/jsf/passthrough"
+      xmlns:cc="http://java.sun.com/jsf/composite"
+      xmlns:of="http://omnifaces.org/functions">
 <h:head>
 </h:head>
 <h:body>
@@ -71,16 +73,17 @@
             <ui:fragment rendered="#{!DatasetPage.anonymizedAccess}">
                 <script type="application/ld+json">
                     <c:choose>
-                    <c: when test="#{empty DatasetPage.croissant}">
-                    <h: outputText value="#{DatasetPage.jsonLd}"/>
-                    </c: when>
-                    <c: otherwise>
-                    <h: outputText value="#{DatasetPage.croissant}"/>
-                    </c: otherwise>
+                    <c:when test="#{empty DatasetPage.croissant}">
+                    <h:outputText value="#{DatasetPage.jsonLd}"/>
+                    </c:when>
+                    <c:otherwise>
+                    <h:outputText value="#{DatasetPage.croissant}"/>
+                    </c:otherwise>
                     </c:choose>
                 </script>
             </ui:fragment>
         </ui:define>
+
         <ui:define name="og_header">
             <ui:fragment rendered="#{!DatasetPage.anonymizedAccess}">
                 <meta property="og:title" content="#{DatasetPage.title}"/>
