@@ -90,10 +90,7 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
-import software.amazon.awssdk.services.s3.model.S3Object;
+import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
@@ -6723,7 +6720,10 @@ public class DatasetPage implements java.io.Serializable {
     public List<String> listScorecardImages() {
         AwsBasicCredentials awsCreds = AwsBasicCredentials.create("access-key-id", "secret-access-key");
 
-        S3Client s3 = S3Client.builder()
+//        String uniqueID = "99222b0ab8b814309edde536a69eeacc";
+        String uniqueID = "df5639a1f7e1c87b7f86a1f103db068b";
+
+        S3Client s3Client = S3Client.builder()
                 .region(REGION)
                 .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
                 .build();
@@ -6733,29 +6733,38 @@ public class DatasetPage implements java.io.Serializable {
                 .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
                 .build();
 
-        ListObjectsV2Request listObjectsReqManual = ListObjectsV2Request.builder()
+        ListObjectsV2Request listObjectsRequest = ListObjectsV2Request.builder()
                 .bucket(BUCKET_NAME)
-                .prefix("dataset_0") // Filter by image name prefix
                 .build();
 
-        ListObjectsV2Response listObjResponse = s3.listObjectsV2(listObjectsReqManual);
+        ListObjectsV2Response listObjectsResponse = s3Client.listObjectsV2(listObjectsRequest);
 
-        return listObjResponse.contents().stream()
-                .map(S3Object::key)
-                .map(key -> {
+        List<String> filteredImages = listObjectsResponse.contents().stream()
+                .filter(s3Object -> {
+                    HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
+                            .bucket(BUCKET_NAME)
+                            .key(s3Object.key())
+                            .build();
+                    HeadObjectResponse headObjectResponse = s3Client.headObject(headObjectRequest);
+                    return uniqueID.equals(headObjectResponse.metadata().get("uniqueid"));
+                })
+                .map(s3Object -> {
                     GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                             .bucket(BUCKET_NAME)
-                            .key(key)
+                            .key(s3Object.key())
                             .build();
-
                     GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
                             .getObjectRequest(getObjectRequest)
                             .signatureDuration(Duration.ofMinutes(10))
                             .build();
-
                     return presigner.presignGetObject(presignRequest).url().toString();
                 })
                 .collect(Collectors.toList());
+
+        s3Client.close();
+        presigner.close();
+
+        return filteredImages;
     }
 
     private boolean showSpinner = false;
