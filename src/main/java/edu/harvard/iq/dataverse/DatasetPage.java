@@ -6720,8 +6720,8 @@ public class DatasetPage implements java.io.Serializable {
     public List<String> listScorecardImages() {
         AwsBasicCredentials awsCreds = AwsBasicCredentials.create("access-key-id", "secret-access-key");
 
-//        String uniqueID = "99222b0ab8b814309edde536a69eeacc";
-        String uniqueID = "df5639a1f7e1c87b7f86a1f103db068b";
+        String uniqueIDTemp = dataset.getPersistentURL();
+        String uniqueID = uniqueIDTemp.replace("https://", "");
 
         S3Client s3Client = S3Client.builder()
                 .region(REGION)
