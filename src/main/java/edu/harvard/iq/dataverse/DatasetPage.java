@@ -6717,11 +6717,11 @@ public class DatasetPage implements java.io.Serializable {
     private static final String BUCKET_NAME = "climateverse";
     private static final Region REGION = Region.US_EAST_1; // Change to your region
 
-    public List<String> listScorecardImages() {
+    public String listScorecardImages() {
         AwsBasicCredentials awsCreds = AwsBasicCredentials.create("access-key-id", "secret-access-key");
 
         String uniqueIDTemp = dataset.getPersistentURL();
-        String uniqueID = uniqueIDTemp.replace("https://", "");
+        String uniqueID = uniqueIDTemp.replace("https://", "").replace("/", "_").concat(".png");
 
         S3Client s3Client = S3Client.builder()
                 .region(REGION)
@@ -6737,34 +6737,21 @@ public class DatasetPage implements java.io.Serializable {
                 .bucket(BUCKET_NAME)
                 .build();
 
-        ListObjectsV2Response listObjectsResponse = s3Client.listObjectsV2(listObjectsRequest);
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(BUCKET_NAME)
+                .key(uniqueID)
+                .build();
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .getObjectRequest(getObjectRequest)
+                .signatureDuration(Duration.ofMinutes(10))
+                .build();
 
-        List<String> filteredImages = listObjectsResponse.contents().stream()
-                .filter(s3Object -> {
-                    HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
-                            .bucket(BUCKET_NAME)
-                            .key(s3Object.key())
-                            .build();
-                    HeadObjectResponse headObjectResponse = s3Client.headObject(headObjectRequest);
-                    return uniqueID.equals(headObjectResponse.metadata().get("uniqueid"));
-                })
-                .map(s3Object -> {
-                    GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                            .bucket(BUCKET_NAME)
-                            .key(s3Object.key())
-                            .build();
-                    GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                            .getObjectRequest(getObjectRequest)
-                            .signatureDuration(Duration.ofMinutes(10))
-                            .build();
-                    return presigner.presignGetObject(presignRequest).url().toString();
-                })
-                .collect(Collectors.toList());
+        String presignedUrl = presigner.presignGetObject(presignRequest).url().toString();
 
         s3Client.close();
         presigner.close();
 
-        return filteredImages;
+        return presignedUrl;
     }
 
     private boolean showSpinner = false;
@@ -6801,10 +6788,10 @@ public class DatasetPage implements java.io.Serializable {
         showImage = false;
 
         try {
-            List<String> imageUrls = listScorecardImages();
-            if (!imageUrls.isEmpty()) {
+            String imageUrlTemp = listScorecardImages();
+            if (imageUrlTemp != null) {
                 showImage = true;
-                imageUrl = imageUrls.get(0); // Assuming the first URL is used
+                imageUrl = imageUrlTemp;
             }
         } catch (Exception e) {
             e.printStackTrace();
