@@ -64,4 +64,4 @@ src/main/webapp/resources/images/dataverseproject.png.thumb140
 /docker-dev-volumes
 /.vs
 
-/S3_bucket_update/output_images
+/S3_bucket_update/
