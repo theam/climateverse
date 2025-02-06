@@ -6718,7 +6718,7 @@ public class DatasetPage implements java.io.Serializable {
     private static final Region REGION = Region.US_EAST_1; // Change to your region
 
     public String listScorecardImages() {
-        AwsBasicCredentials awsCreds = AwsBasicCredentials.create("${ALIAS=dataverse.s3.aws.access.id}", "${ALIAS=dataverse.s3.aws.access.key}");
+        AwsBasicCredentials awsCreds = AwsBasicCredentials.create("${MPCONFIG=dataverse.s3.aws.access.id}", "${MPCONFIG=dataverse.s3.aws.access.key}");
         
         String uniqueIDTemp = dataset.getPersistentURL();
         String uniqueID = uniqueIDTemp.replace("https://", "").replace("/", "_").concat(".png");
