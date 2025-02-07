@@ -47,7 +47,9 @@ public class DatasetFields extends AbstractApiBean {
     @GET
     @Path("scorecards")
     public Response listScorecardImages() {
-        AwsBasicCredentials awsCreds = AwsBasicCredentials.create("${MPCONFIG=dataverse.s3.aws.access.id}", "${MPCONFIG=dataverse.s3.aws.access.key}");
+        String awsAccessId = System.getProperty("dataverse.s3.aws.access.id");
+        String awsAccessKey = System.getProperty("dataverse.s3.aws.access.key");
+        AwsBasicCredentials awsCreds = AwsBasicCredentials.create(awsAccessId, awsAccessKey);
 
         S3Client s3 = S3Client.builder()
                 .region(REGION)
