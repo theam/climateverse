@@ -6735,10 +6735,6 @@ public class DatasetPage implements java.io.Serializable {
                 .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
                 .build();
 
-        ListObjectsV2Request listObjectsRequest = ListObjectsV2Request.builder()
-                .bucket(BUCKET_NAME)
-                .build();
-
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(BUCKET_NAME)
                 .key(uniqueID)
