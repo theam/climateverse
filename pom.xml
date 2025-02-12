@@ -89,6 +89,11 @@
                 <artifactId>apache-mime4j-dom</artifactId>
                 <version>0.8.7</version>
             </dependency>
+            <dependency>
+                <groupId>net.minidev</groupId>
+                <artifactId>json-smart</artifactId>
+                <version>2.5.2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <!-- Declare any DIRECT dependencies here.
